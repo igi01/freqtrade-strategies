@@ -16,7 +16,7 @@ from freqtrade.persistence import Trade
 logger = logging.getLogger(__name__)
 
 
-class ZaratustraDCA2_07(IStrategy):
+class ZaratustraDCA2_07_EMA(IStrategy):
     """
         Personalized Trading Strategy with Risk Management, DCA, and Technical Indicators
 
@@ -50,15 +50,15 @@ class ZaratustraDCA2_07(IStrategy):
     use_custom_stoploss = False
     trailing_stop = False
     ignore_roi_if_entry_signal = True
-    can_short = True
+    can_short = False
     use_exit_signal = True
-    stoploss = -0.10
+    stoploss = -0.99
     startup_candle_count: int = 100
-    timeframe = '5m'
+    timeframe = '1m'
 
     # DCA Parameters
     position_adjustment_enable = True
-    max_entry_position_adjustment = 2
+    max_entry_position_adjustment = 5
     max_dca_multiplier = 1  # Maximum DCA multiplier
 
     # ROI table:
@@ -193,7 +193,7 @@ class ZaratustraDCA2_07(IStrategy):
                 filled_entries = trade.select_filled_orders(trade.entry_side)
                 if not filled_entries:
                     return None
-                stake_amount = filled_entries[0].cost * (1 + 0.5 * (trade.nr_of_successful_entries - 1))
+                stake_amount = filled_entries[0].cost * (2.1 ** (trade.nr_of_successful_entries))
                 return min(stake_amount, max_stake)
 
         elif adx < adx_threshold_low:
